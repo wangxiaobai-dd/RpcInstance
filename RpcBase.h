@@ -46,10 +46,9 @@ public:
         this->functionMap[type] = std::bind(&invoker<Function>::apply, std::forward<Function>(func), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
     }
 
-
-
 private:
     std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
+
 
     /**************************************** 调用 ******************************************/
 public:
