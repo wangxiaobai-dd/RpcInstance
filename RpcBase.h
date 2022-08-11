@@ -6,8 +6,9 @@
 #define TEMPLATEINSTANCE_RPCBASE_H
 
 #include <unordered_map>
+#include <iostream>
 #include "RpcData.h"
-
+#include "RpcRouter.h"
 
 template<class T>
 inline void constructBuffer(T *ptr)
@@ -32,26 +33,28 @@ class RpcBase
 {
 public:
 
-    RpcBase() {}
+    RpcBase(){}
 
-    virtual ~RpcBase() {}
+    virtual ~RpcBase(){}
 
-    virtual void sendMsg(RpcMsg *msg, unsigned int size) = 0;
+    virtual void sendMsg(RpcMsg *msg, unsigned int size){ std::cout << "send" << std::endl; };
 
     /**************************************** 注册 ******************************************/
 public:
-    template <typename Function>
+    template<typename Function>
     void bind(CALL_TYPE type, Function&& func)
     {
-        this->functionMap[type] = std::bind(&invoker<Function>::apply, std::forward<Function>(func), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+        this->functionMap[type] = std::bind(&RpcRouter::invoker<Function>::apply, std::forward<Function>(func),
+                                            std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     }
 
 private:
-    std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
+    std::unordered_map<CALL_TYPE, std::function<void(const char *, size_t, std::string&)>> functionMap;
 
 
     /**************************************** 调用 ******************************************/
 public:
+    /*
     template<typename... Args>
     void call(CALL_TYPE type, Args &&... args)
     {
@@ -66,11 +69,17 @@ public:
 
         SEND_MSG(data, size)
     }
+     */
 private:
-
 
 
 };
 
 
 #endif //TEMPLATEINSTANCE_RPCBASE_H
+/*
+ * https://www.cnblogs.com/qicosmos/p/4325949.html
+ * https://blog.csdn.net/lichao201005/article/details/124264766
+ * https://zhuanlan.zhihu.com/p/335994370
+ * https://www.cnblogs.com/abelian/p/6291854.html
+ * */

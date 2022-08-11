@@ -3,4 +3,6 @@ project(templateInstance)
 
 set(CMAKE_CXX_STANDARD 20)
 
+
+
 add_executable(templateInstance main.cpp codec.h)
