@@ -44,8 +44,8 @@ public:
     template<typename Function>
     void bind(CALL_TYPE type, Function&& func)
     {
-        this->functionMap[type] = std::bind(&RpcRouter::invoker<Function>::apply, std::forward<Function>(func),
-                                            std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        std::function<void(const char *, size_t, std::string&)> f = std::bind(&RpcRouter::invoker<Function>::apply,  std::move(func), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+       // functionMap[type] = f;
     }
 
 private:
