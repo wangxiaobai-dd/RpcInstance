@@ -10,19 +10,19 @@
 class RpcSession : public RpcBase
 {
     template<typename Function>
-    void bindSept(CALL_TYPE type, Function &&func)
+    void bindSept(CALL_TYPE type, Function func)
     {
 
     }
 
     template<typename Function>
-    void bindUnion(CALL_TYPE type, Function &&func)
+    void bindUnion(CALL_TYPE type, Function func)
     {
 
     }
 
     template<typename Function>
-    void bindUser(CALL_TYPE type, Function &&func)
+    void bindUser(CALL_TYPE type, Function func)
     {
 
     }
@@ -32,12 +32,12 @@ class RpcSession : public RpcBase
 // Test
 struct Sept
 {
-    void addSeptMoney() {}
+    void addSeptMoney(int num) {}
 };
 
 struct User
 {
-    void getLevel() {}
+    int getLevel() {}
 };
 
 #endif //TEMPLATEINSTANCE_RPCSESSION_H

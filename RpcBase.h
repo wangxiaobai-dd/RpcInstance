@@ -19,7 +19,8 @@ inline void constructBuffer(T* ptr)
     new(static_cast<void*>(ptr)) T();
 }
 
-#define CREATE_MSG(msg, name, len) char buffer##name[len] = {0};\
+#define CREATE_MSG(msg, name, len)\
+        char buffer##name[len] = {0};\
         msg* name = (msg*)buffer##name;\
         constructBuffer(name);
 
@@ -61,30 +62,34 @@ public:
     //  template <typename... Args>
     // void call(CALL_TYPE type, Args&& ... args);
 
+
     template <typename... Args>
     void call(CALL_TYPE type, Args&& ... args)
     {
         rpcid++;
-        // msgpack_codec codec;
-        //auto msg = codec.pack_args(type, std::forward<Args>(args)...);
+        msgpack_codec codec;
+        auto msg = codec.pack_args((int)type, std::forward<Args>(args)...);
 
-        //size_t size = msg.size();
-        //char* data = msg.release();
+        size_t size = msg.size();
+        char* data = msg.release();
 
-        //CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
+        CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
 
-        //SEND_MSG(data, size)
+        SEND_MSG(data, size)
     }
 
     template <typename... Args>
-    void testCall(CALL_TYPE type, Args&& ... args)
+    void testLocalCall(CALL_TYPE type, Args&& ... args)
     {
         auto iter = functionMap.find(type);
         if(iter == functionMap.end())
             return;
-        std::string data;
+        msgpack_codec codec;
+        auto msg = codec.pack_args((int)type, std::forward<Args>(args)...); // todo type 不用打包也可以
+        size_t size = msg.size();
+        char* data = msg.release();
         std::string result;
-        iter->second(data.data(), 0, result);
+        iter->second(data, size, result);
     }
 
 private:
