@@ -10,14 +10,17 @@
 #include "RpcData.h"
 #include "RpcRouter.h"
 
-template<class T>
-inline void constructBuffer(T *ptr)
+const constexpr size_t DEFAULT_TIMEOUT = 5000;
+const constexpr size_t MAX_MSG_LEN = 1024 * 64;
+
+template <class T>
+inline void constructBuffer(T* ptr)
 {
-    new(static_cast<void *>(ptr)) T();
+    new(static_cast<void*>(ptr)) T();
 }
 
 #define CREATE_MSG(msg, name, len) char buffer##name[len] = {0};\
-        cmd* name = (msg*)buffer##name;\
+        msg* name = (msg*)buffer##name;\
         constructBuffer(name);
 
 #define SEND_MSG(data, size)\
@@ -37,43 +40,59 @@ public:
 
     virtual ~RpcBase(){}
 
-    virtual void sendMsg(RpcMsg *msg, unsigned int size){ std::cout << "send" << std::endl; };
+    virtual void sendMsg(RpcMsg* msg, unsigned int size){ std::cout << "send" << std::endl; };
 
     /**************************************** 注册 ******************************************/
 public:
-    template<typename Function>
-    void bind(CALL_TYPE type, Function&& func)
+    template <typename Function>
+    void bind(CALL_TYPE type, Function func)
     {
-        std::function<void(const char *, size_t, std::string&)> f = std::bind(&RpcRouter::invoker<Function>::apply,  std::move(func), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-       // functionMap[type] = f;
+        functionMap[type] = std::bind(&RpcRouter::invoker<Function>::apply, std::move(func), std::placeholders::_1,
+                                      std::placeholders::_2, std::placeholders::_3);
     }
 
 private:
-    std::unordered_map<CALL_TYPE, std::function<void(const char *, size_t, std::string&)>> functionMap;
+    std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
 
 
     /**************************************** 调用 ******************************************/
 public:
-    /*
-    template<typename... Args>
-    void call(CALL_TYPE type, Args &&... args)
+
+    //  template <typename... Args>
+    // void call(CALL_TYPE type, Args&& ... args);
+
+    template <typename... Args>
+    void call(CALL_TYPE type, Args&& ... args)
     {
         rpcid++;
-        msgpack_codec codec;
-        auto msg = codec.pack_args(type, std::forward<Args>(args)...);
+        // msgpack_codec codec;
+        //auto msg = codec.pack_args(type, std::forward<Args>(args)...);
 
-        size_t size = msg.size();
-        char *data = msg.release();
+        //size_t size = msg.size();
+        //char* data = msg.release();
 
-        CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
+        //CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
 
-        SEND_MSG(data, size)
+        //SEND_MSG(data, size)
     }
-     */
-private:
 
+    template <typename... Args>
+    void testCall(CALL_TYPE type, Args&& ... args)
+    {
+        auto iter = functionMap.find(type);
+        if(iter == functionMap.end())
+            return;
+        std::string data;
+        std::string result;
+        iter->second(data.data(), 0, result);
+    }
+
+private:
+    static std::uint64_t rpcid;
 
 };
+
+std::uint64_t RpcBase::rpcid = 0;
 
 
 #endif //TEMPLATEINSTANCE_RPCBASE_H
