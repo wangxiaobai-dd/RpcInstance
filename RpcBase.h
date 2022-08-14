@@ -48,7 +48,14 @@ public:
     template <typename Function>
     void bind(CALL_TYPE type, Function func)
     {
-        functionMap[type] = std::bind(&RpcRouter::invoker<Function>::apply, std::move(func), std::placeholders::_1,
+        functionMap[type] = std::bind(RpcRouter::invoker<Function>::apply, std::move(func), std::placeholders::_1,
+                                      std::placeholders::_2, std::placeholders::_3);
+    }
+
+    template <typename Function, typename Object>
+    void bind(CALL_TYPE type, Function func, Object* object)
+    {
+        functionMap[type] = std::bind(RpcRouter::invoker<Function>::applyMember, std::move(func), object, std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
@@ -68,7 +75,7 @@ public:
     {
         rpcid++;
         msgpack_codec codec;
-        auto msg = codec.pack_args((int)type, std::forward<Args>(args)...);
+        auto msg = codec.pack_args(std::forward<Args>(args)...);
 
         size_t size = msg.size();
         char* data = msg.release();
@@ -85,11 +92,12 @@ public:
         if(iter == functionMap.end())
             return;
         msgpack_codec codec;
-        auto msg = codec.pack_args((int)type, std::forward<Args>(args)...); // todo type 不用打包也可以
+        auto msg = codec.pack_args( std::forward<Args>(args)...);
         size_t size = msg.size();
         char* data = msg.release();
         std::string result;
         iter->second(data, size, result);
+        std::cout << result << std::endl;
     }
 
 private:
