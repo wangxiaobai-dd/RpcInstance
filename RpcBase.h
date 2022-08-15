@@ -55,7 +55,7 @@ public:
     template <typename Function, typename Object>
     void bind(CALL_TYPE type, Function func, Object* object)
     {
-        functionMap[type] = std::bind(RpcRouter::invoker<Function>::applyMember, std::move(func), object, std::placeholders::_1,
+        functionMap[type] = std::bind(RpcRouter::invoker<Function>::template applyMember<Object>, std::move(func), object, std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 

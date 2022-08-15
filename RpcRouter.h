@@ -75,12 +75,13 @@ struct RpcRouter
     static std::invoke_result_t<Function, Args...>
     callHelper(Function&& func, const std::index_sequence<I...>&, std::tuple<Args...>&& tup)
     {
-        return std::forward<Function>(func)(std::forward<Args>(std::get<I + 1>(tup))...);
-        //return func(std::move(std::get<I + 1>(tup))...);
+        return std::invoke(func, std::forward<Args>(std::get<I>(tup))...);
+        //return std::forward<Function>(func)(std::forward<Args>(std::get<I + 1>(tup))...);
+        //return func(std::move(std::get<I>(tup))...);
     }
 
     template <typename Function, typename Object, typename... Args>
-    static std::enable_if_t<std::is_void_v<std::invoke_result_t<Function, Args...>>>
+    static std::enable_if_t<std::is_void_v<std::invoke_result_t<Function, Object, Args...>>>
     callMember(const Function& func, Object* object, std::string result, std::tuple<Args...>&& tup)
     {
         callMemHelper(func, object, typename std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
@@ -88,19 +89,18 @@ struct RpcRouter
     }
 
     template <typename Function, typename Object, typename... Args>
-    static std::enable_if_t<!std::is_void_v<std::invoke_result_t<Function, Args...>>>
+    static std::enable_if_t<!std::is_void_v<std::invoke_result_t<Function, Object, Args...>>>
     callMember(const Function& func, Object* object, std::string result, std::tuple<Args...>&& tup)
     {
         auto ret = callMemHelper(func, object, typename std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
         result = msgpack_codec::pack_args_str("OK", ret);
     }
 
-    template <typename Function, size_t... I, typename...Args>
-    static std::invoke_result_t<Function, Args...>
-    callMemHelper(const Function& func, const std::index_sequence<I...>&, std::tuple<Args...>&& tup)
+    template <typename Function, typename Object, size_t... I, typename...Args>
+    static std::invoke_result_t<Function, Object, Args...>
+    callMemHelper(const Function& func, Object object, const std::index_sequence<I...>&, std::tuple<Args...>&& tup)
     {
-        return func(std::move(std::get<I + 1>(tup))...);
-        //todo invoke
+        return std::invoke(func, object, std::forward<Args>(std::get<I>(tup))...);
     }
 };
 
