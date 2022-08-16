@@ -33,7 +33,7 @@ struct RpcRouter
         {
             using args_tuple = typename function_traits<Function>::args_tuple;
             msgpack_codec codec;
-            auto tup = codec.unpack<args_tuple>(data, size);
+            auto tup = codec.unpack<args_tuple>(data, size); // todo 自己的序列化
             call(func, result, std::move(tup));
             printParam(tup);
         }
@@ -47,6 +47,11 @@ struct RpcRouter
             auto tup = codec.unpack<args_tuple>(data, size);
             callMember(func, object, result, std::move(tup));
             printParam(tup);
+        }
+
+        static inline void applyData(const Function& func, const char* data, size_t size, std::string& result)
+        {
+            call(func, result, data, size);
         }
     };
 

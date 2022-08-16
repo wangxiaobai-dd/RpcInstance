@@ -59,6 +59,7 @@ public:
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
+
 private:
     std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
 
@@ -83,6 +84,17 @@ public:
         CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
 
         SEND_MSG(data, size)
+    }
+
+    void testLocalDataCall(RpcMsg* msg)
+    {
+        if(!msg)
+            return;
+        auto iter = functionMap.find(CALL_TYPE(msg->type));
+        if(iter == functionMap.end())
+            return;
+        std::string result;
+        iter->second(reinterpret_cast<char*>(&msg->data[0]), msg->size, result);
     }
 
     template <typename... Args>

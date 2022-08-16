@@ -6,6 +6,12 @@ void test(int a, std::string b)
     std::cout << "test" << " " << a << b << std::endl;
 }
 
+void testData(const char* data, unsigned int size)
+{
+    stTestDataCmd* cmd = (stTestDataCmd*) data;
+    std::cout << cmd->userID << std::endl;
+}
+
 struct TestMem
 {
     void test2()
@@ -14,14 +20,26 @@ struct TestMem
     }
 };
 
+//todo exception
+
 int main()
 {
     RpcBase rpc;
-  //  rpc.bind(RPC::CALL_SESSION, test);
+    //  rpc.bind(RPC::CALL_SESSION, test);
     TestMem mem;
     rpc.bind(RPC::CALL_SESSION, &TestMem::test2, &mem);
 
     //rpc.call(RPC::CALL_SESSION);
     rpc.testLocalCall(RPC::CALL_SESSION);
     //rpc.call();
+
+    //rpc.bind(RPC::CALL_SESSION_DATA, testData);
+    stTestDataCmd dataCmd;
+    dataCmd.userID = 100;
+    CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
+    send->rpcid = 1;
+    send->type = CALL_SESSION_DATA;
+    std::memcpy(send->data, &dataCmd, sizeof(dataCmd));
+    send->size = sizeof(dataCmd);
+    rpc.testLocalDataCall(send);
 }
