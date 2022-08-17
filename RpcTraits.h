@@ -39,11 +39,17 @@ public:
     typedef Ret function_type(Args...);
 
     typedef Ret return_type;
-    using stl_function_type = std::function<function_type>;
+   // using stl_function_type = std::function<function_type>;
 
     typedef Ret (* pointer)(Args...);
 
     using args_tuple = std::tuple<typename std::decay_t<Args>...>;
+
+    template <size_t I>
+    struct arg
+    {
+        typedef typename std::tuple_element<I, std::tuple<Args...>>::type type;
+    };
 };
 
 
