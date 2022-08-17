@@ -78,6 +78,13 @@ public:
     //  template <typename... Args>
     // void call(CALL_TYPE type, Args&& ... args);
 
+    template <typename Function>
+    void bind(CALL_TYPE type, Function func)
+    {
+        functionMap[type] = std::bind(RpcRouter::invoker<Function>::applyData, std::move(func), std::placeholders::_1,
+                                      std::placeholders::_2, std::placeholders::_3);
+    }
+
 
     template <typename... Args>
     void call(CALL_TYPE type, Args&& ... args)

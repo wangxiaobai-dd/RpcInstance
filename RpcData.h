@@ -10,7 +10,8 @@ namespace RPC
     enum CALL_TYPE
     {
         CALL_SESSION = 1,
-        CALL_SESSION_DATA = 2,
+        CALL_SESSION_NORMAL = 2,
+        CALL_SESSION_DATA = 3,
         CALL_MAX
     };
 
@@ -32,8 +33,12 @@ namespace RPC
 
     };
 
+    struct stDataBaseCmd
+    {
 
-    struct stTestDataCmd
+    };
+
+    struct stTestDataCmd : stDataBaseCmd
     {
         int userID = 0;
         int unionID = 0;
