@@ -49,9 +49,13 @@ struct RpcRouter
             printParam(tup);
         }
 
-        static inline void applyData(const Function& func, const char* data, size_t size, std::string& result)
+        static inline void applyUsingCmd(const Function& func, const char* data, size_t size, std::string& result)
         {
             call(func, result, data, size);
+        }
+
+        static inline void applyMemUsingCmd()
+        {
         }
     };
 

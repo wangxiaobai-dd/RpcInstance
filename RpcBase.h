@@ -59,12 +59,11 @@ public:
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
-
-private:
+protected:
     std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
 
+/**************************************** 调用 ******************************************/
 
-    /**************************************** 调用 ******************************************/
 public:
 
     //  template <typename... Args>

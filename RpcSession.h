@@ -7,8 +7,13 @@
 
 #include "RpcBase.h"
 
+// todo
+
+template <typename Function> struct SessInvoker;
+
 class RpcSession : public RpcBase
 {
+public:
     template<typename Function>
     void bindSept(CALL_TYPE type, Function func)
     {
@@ -16,28 +21,31 @@ class RpcSession : public RpcBase
     }
 
     template<typename Function>
-    void bindUnion(CALL_TYPE type, Function func)
-    {
-
-    }
-
-    template<typename Function>
     void bindUser(CALL_TYPE type, Function func)
     {
-
+        functionMap[type] = std::bind(SessInvoker<Function>::applyUser, std::move(func), std::placeholders::_1,
+                                      std::placeholders::_2, std::placeholders::_3);
     }
-
 };
 
-// Test
-struct Sept
+template <typename Function>
+struct SessInvoker : public RpcRouter::invoker<Function>
 {
-    void addSeptMoney(int num) {}
+    static inline void applyUser(const Function& func, const char* data, size_t size, std::string& result)
+    {
+        // xxx cmd = (xxx)data;
+        // cmd->userID;
+        //SessUser* user = getUserByID(userID);
+        //if(user)
+        //   RpcRouter::call(func, user, data, size);
+    }
+    //callSessUser(type, userID, 100, 1);
+    //callSessSept(type, septID);
+
+    static inline void applySept(const Function& func, const char* data, size_t size, std::string& result)
+    {}
 };
 
-struct User
-{
-    int getLevel() {}
-};
+
 
 #endif //TEMPLATEINSTANCE_RPCSESSION_H

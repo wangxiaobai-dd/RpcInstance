@@ -42,4 +42,25 @@ namespace RPC
 
 };
 
+// Test
+struct Sept
+{
+    void addSeptMoney(int num) {}
+};
+
+struct SessUser
+{
+    SessUser(int _userID)
+    {
+        userID = _userID;
+    }
+    int userID = 0;
+    int getLevel() {}
+};
+
+SessUser* getUserByID(int userID)
+{
+    return new SessUser(userID);
+}
+
 #endif //TEMPLATEINSTANCE_RPCDATA_H
