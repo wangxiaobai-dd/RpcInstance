@@ -55,7 +55,7 @@ struct SessUser
         userID = _userID;
     }
     int userID = 0;
-    int getLevel() {}
+    int getLevel() { return 0; }
 };
 
 SessUser* getUserByID(int userID)

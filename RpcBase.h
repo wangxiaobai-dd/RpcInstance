@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <iostream>
 #include "RpcData.h"
-#include "RpcRouter.h"
+#include "RpcInvoker.h"
 
 const constexpr size_t DEFAULT_TIMEOUT = 5000;
 const constexpr size_t MAX_MSG_LEN = 1024 * 64;
@@ -41,21 +41,30 @@ public:
 
     virtual ~RpcBase(){}
 
-    virtual void sendMsg(RpcMsg* msg, unsigned int size){ std::cout << "send" << std::endl; };
+    virtual void sendMsg(RpcMsg* msg, unsigned int size){ std::cout << "send" << std::endl; }
 
+    void route(RpcMsg* msg)
+    {
+        if(!msg)
+            return;
+        auto iter = functionMap.find(CALL_TYPE(msg->type));
+        if(iter == functionMap.end())
+            return;
+    }
     /**************************************** 注册 ******************************************/
 public:
     template <typename Function>
     void bind(CALL_TYPE type, Function func)
     {
-        functionMap[type] = std::bind(RpcRouter::invoker<Function>::apply, std::move(func), std::placeholders::_1,
+        functionMap[type] = std::bind(Invoker<Function>::apply, std::move(func), std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
     template <typename Function, typename Object>
     void bind(CALL_TYPE type, Function func, Object* object)
     {
-        functionMap[type] = std::bind(RpcRouter::invoker<Function>::template applyMember<Object>, std::move(func), object, std::placeholders::_1,
+        functionMap[type] = std::bind(Invoker<Function>::template applyMember<Object>, std::move(func), object,
+                                      std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
@@ -103,7 +112,7 @@ public:
         if(iter == functionMap.end())
             return;
         msgpack_codec codec;
-        auto msg = codec.pack_args( std::forward<Args>(args)...);
+        auto msg = codec.pack_args(std::forward<Args>(args)...);
         size_t size = msg.size();
         char* data = msg.release();
         std::string result;
