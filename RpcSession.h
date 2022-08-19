@@ -29,7 +29,7 @@ public:
 };
 
 template <typename Function>
-struct SessInvoker : public RpcRouter::invoker<Function>
+struct SessInvoker : public RpcInvoker::Invoker<Function>
 {
     static inline void applyUser(const Function& func, const char* data, size_t size, std::string& result)
     {

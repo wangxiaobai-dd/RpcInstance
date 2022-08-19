@@ -20,7 +20,7 @@ inline void constructBuffer(T* ptr)
 }
 
 #define CREATE_MSG(msg, name, len)\
-        char buffer##name[len] = {0};\
+        char buffer##name[len] = {0}; \
         msg* name = (msg*)buffer##name;\
         constructBuffer(name);
 
@@ -32,6 +32,7 @@ inline void constructBuffer(T* ptr)
             sendMsg(send, send->getSize());
 
 using namespace RPC;
+
 
 class RpcBase
 {
@@ -54,28 +55,38 @@ public:
     /**************************************** 注册 ******************************************/
 public:
     template <typename Function>
-    void bind(CALL_TYPE type, Function func)
+    std::enable_if_t<!std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    bind(CALL_TYPE type, Function func)
     {
-        functionMap[type] = std::bind(Invoker<Function>::apply, std::move(func), std::placeholders::_1,
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::apply, std::move(func), std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
     template <typename Function, typename Object>
-    void bind(CALL_TYPE type, Function func, Object* object)
+    std::enable_if_t<!std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    bind(CALL_TYPE type, Function func, Object* object)
     {
-        functionMap[type] = std::bind(Invoker<Function>::template applyMember<Object>, std::move(func), object,
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::template applyMember<Object>, std::move(func), object,
                                       std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
-    /*
-    template <typename Function, typename = std::enable_if_t<>
-    void bind(CALL_TYPE type)
+    template <typename Function>
+    std::enable_if_t<std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    bind(CALL_TYPE type, Function func)
     {
-        functionMap[type] = std::bind(Invoker<Function>::applyData, std::move(func), std::placeholders::_1,
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::applyUsingCmd, std::move(func), std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
-     */
+
+    template <typename Function, typename Object>
+    std::enable_if_t<std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    bind(CALL_TYPE type, Function func, Object* object)
+    {
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::template applyMemUsingCmd<Object>, std::move(func), object,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2, std::placeholders::_3);
+    }
 
 protected:
     std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
@@ -83,12 +94,6 @@ protected:
 /**************************************** 调用 ******************************************/
 
 public:
-
-    //  template <typename... Args>
-    // void call(CALL_TYPE type, Args&& ... args);
-
-
-
 
     template <typename... Args>
     void call(CALL_TYPE type, Args&& ... args)
@@ -113,7 +118,8 @@ public:
         if(iter == functionMap.end())
             return;
         std::string result;
-        iter->second(reinterpret_cast<char*>(&msg->data[0]), msg->size, result);
+        std::string cmd(reinterpret_cast<char*>(&msg->data[0]), msg->size);
+        iter->second(cmd.c_str(), cmd.size(), result);
     }
 
     template <typename... Args>

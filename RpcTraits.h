@@ -39,6 +39,7 @@ public:
     typedef Ret function_type(Args...);
 
     typedef Ret return_type;
+
    // using stl_function_type = std::function<function_type>;
 
     typedef Ret (* pointer)(Args...);
@@ -48,8 +49,9 @@ public:
     template <size_t I>
     struct arg
     {
-        typedef typename std::tuple_element<I, std::tuple<Args...>>::type type;
+        using type = typename std::tuple_element<I, std::tuple<Args...>>::type;
     };
+
 };
 
 

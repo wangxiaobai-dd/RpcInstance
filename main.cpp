@@ -6,10 +6,10 @@ void test(int a, std::string b)
     std::cout << "test" << " " << a << b << std::endl;
 }
 
-void testData(const stDataBaseCmd* data, unsigned int size)
+void testData(const stDataBaseCmd* data, size_t size)
 {
     stTestDataCmd* cmd = (stTestDataCmd*) data;
-    std::cout << cmd->userID << std::endl;
+    std::cout << "testData, userID:" << cmd->userID << std::endl;
 }
 
 struct TestMem
@@ -17,6 +17,10 @@ struct TestMem
     void test2()
     {
         std::cout << "test2" << std::endl;
+    }
+    void testMemData()
+    {
+
     }
 };
 
@@ -36,6 +40,7 @@ int main()
     rpc.bind(RPC::CALL_SESSION_DATA, testData);
     stTestDataCmd dataCmd;
     dataCmd.userID = 100;
+
     CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
     send->rpcid = 1;
     send->type = CALL_SESSION_DATA;

@@ -19,8 +19,8 @@ namespace RPC
     {
         unsigned int rpcid = 0;
         unsigned int type = 0;
-        unsigned char data[0];
         unsigned int size = 0;
+        unsigned char data[0];
 
         unsigned int getSize()
         {
