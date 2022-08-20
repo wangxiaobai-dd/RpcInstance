@@ -14,9 +14,9 @@
 template <class TupType, size_t... I>
 void printParam(const TupType& tup, std::index_sequence<I...>)
 {
-    std::cout << "(";
+    std::cout << "printParam: (";
     (..., (std::cout << (I == 0 ? "" : ", ") << std::get<I>(tup)));
-    std::cout << ")\n";
+    std::cout << ")" << std::endl;
 }
 
 template <class... T>
@@ -35,10 +35,21 @@ struct RpcInvoker
         {
             std::cout << "apply" << std::endl;
             using args_tuple = typename function_traits<Function>::args_tuple;
-            msgpack_codec codec;
-            auto tup = codec.unpack<args_tuple>(data, size); // todo 自己的序列化
-            call(func, result, std::move(tup));
-            printParam(tup);
+            try
+            {
+                msgpack_codec codec;
+                auto tup = codec.unpack<args_tuple>(data, size); // todo 自己的序列化
+                printParam(tup);
+                call(func, result, std::move(tup));
+            }
+            catch(const std::invalid_argument& e)
+            {
+                result = "ARGS FAIL";
+            }
+            catch(const std::exception& e)
+            {
+                result = "FAIL";
+            }
         }
 
         template <typename Object>
@@ -57,6 +68,7 @@ struct RpcInvoker
         {
             std::cout << "applyUsingCmd" << std::endl;
             std::invoke(func, (const RPC::stDataBaseCmd*) data, size);
+            result = "OK";
         }
 
         template <typename Object>
@@ -65,6 +77,7 @@ struct RpcInvoker
         {
             std::cout << "applyMemUsingCmd" << std::endl;
             std::invoke(func, object, (const RPC::stDataBaseCmd*) data, size);
+            result = "OK";
         }
     };
 
@@ -72,21 +85,17 @@ struct RpcInvoker
     static std::enable_if_t<std::is_void_v<std::invoke_result_t<Function, Args...>>>
     call(Function&& func, std::string& result, std::tuple<Args...>&& tup)
     {
-        std::cout << "invoke return void." << std::endl;
-
         callHelper(func, std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
-        result = "OK";
+        result = "invoke return void. OK";
     }
 
     template <typename Function, typename... Args>
     static std::enable_if_t<!std::is_void_v<std::invoke_result_t<Function, Args...>>>
     call(Function&& func, std::string& result, std::tuple<Args...>&& tup)
     {
-        std::cout << "invoke return non-void." << std::endl;
-
         auto ret = callHelper(func, std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
         // do something with ret
-        result = msgpack_codec::pack_args_str("OK", ret);
+        result = "invoke return non-void. OK";
     }
 
     template <typename Function, size_t... I, typename...Args>
@@ -100,18 +109,19 @@ struct RpcInvoker
 
     template <typename Function, typename Object, typename... Args>
     static std::enable_if_t<std::is_void_v<std::invoke_result_t<Function, Object, Args...>>>
-    callMember(const Function& func, Object* object, std::string result, std::tuple<Args...>&& tup)
+    callMember(const Function& func, Object* object, std::string& result, std::tuple<Args...>&& tup)
     {
         callMemHelper(func, object, typename std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
-        result = "OK";
+        result = "call member return void. OK";
     }
 
     template <typename Function, typename Object, typename... Args>
     static std::enable_if_t<!std::is_void_v<std::invoke_result_t<Function, Object, Args...>>>
-    callMember(const Function& func, Object* object, std::string result, std::tuple<Args...>&& tup)
+    callMember(const Function& func, Object* object, std::string& result, std::tuple<Args...>&& tup)
     {
         auto ret = callMemHelper(func, object, typename std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
-        result = msgpack_codec::pack_args_str("OK", ret);
+        // result = msgpack_codec::pack_args_str("OK", ret);  // OK need enum
+        result = "call member return non void. OK";
     }
 
     template <typename Function, typename Object, size_t... I, typename...Args>
@@ -120,7 +130,6 @@ struct RpcInvoker
     {
         return std::invoke(func, object, std::forward<Args>(std::get<I>(tup))...);
     }
-
 };
 
 

@@ -10,8 +10,10 @@ namespace RPC
     enum CALL_TYPE
     {
         CALL_SESSION = 1,
-        CALL_SESSION_NORMAL = 2,
+        CALL_SESSION_MEM = 2,
         CALL_SESSION_DATA = 3,
+        CALL_SESSION_NO_PARAM = 4,
+        CALL_SESSION_MEM_DATA = 5,
         CALL_MAX
     };
 

@@ -27,8 +27,14 @@ public:
             bare_tuple_type;
     using args_tuple_2nd =
             std::tuple<std::remove_const_t<std::remove_reference_t<Args>>...>;
+
+    template <size_t I>
+    struct arg
+    {
+        using type = typename std::tuple_element<I, std::tuple<Args...>>::type;
+    };
 };
- */
+*/
 
 template <typename Ret, typename... Args>
 struct function_traits<Ret(Args...)>
@@ -40,8 +46,6 @@ public:
 
     typedef Ret return_type;
 
-   // using stl_function_type = std::function<function_type>;
-
     typedef Ret (* pointer)(Args...);
 
     using args_tuple = std::tuple<typename std::decay_t<Args>...>;
@@ -52,25 +56,32 @@ public:
         using type = typename std::tuple_element<I, std::tuple<Args...>>::type;
     };
 
+    using argType0 = typename arg<0>::type;
 };
-
 
 // 空参数
-/*
-template <typename Ret> struct function_traits<Ret()> {
+template <typename Ret>
+struct function_traits<Ret()>
+{
 public:
-    enum { arity = 0 };
+    enum{ arity = 0 };
+
     typedef Ret function_type();
+
     typedef Ret return_type;
-    using stl_function_type = std::function<function_type>;
-    typedef Ret (*pointer)();
 
-    //ypedef std::tuple<> tuple_type;
-    typedef std::tuple<> bare_tuple_type;
+    typedef Ret (* pointer)();
 
-    using args_tuple_2nd = std::tuple<>;
+    using args_tuple = std::tuple<>;
+
+    template <size_t I>
+    struct arg
+    {
+        using type = typename std::void_t<>;
+    };
+
+    using argType0 = typename arg<0>::type;
 };
- */
 
 // 函数指针
 template <typename Ret, typename... Args>

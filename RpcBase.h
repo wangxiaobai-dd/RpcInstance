@@ -33,7 +33,6 @@ inline void constructBuffer(T* ptr)
 
 using namespace RPC;
 
-
 class RpcBase
 {
 public:
@@ -54,36 +53,43 @@ public:
     }
     /**************************************** 注册 ******************************************/
 public:
+    // 普通函数 参数未使用 stDataBaseCmd
     template <typename Function>
-    std::enable_if_t<!std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    std::enable_if_t<!std::is_same_v<typename function_traits<Function>::argType0, const stDataBaseCmd*>>
     bind(CALL_TYPE type, Function func)
     {
         functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::apply, std::move(func), std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
+    // 成员函数 参数未使用 stDataBaseCmd
     template <typename Function, typename Object>
-    std::enable_if_t<!std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    std::enable_if_t<!std::is_same_v<typename function_traits<Function>::argType0, const stDataBaseCmd*>>
     bind(CALL_TYPE type, Function func, Object* object)
     {
-        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::template applyMember<Object>, std::move(func), object,
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::template applyMember<Object>, std::move(func),
+                                      object,
                                       std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
+    // 普通函数 参数使用 stDataBaseCmd
     template <typename Function>
-    std::enable_if_t<std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    std::enable_if_t<std::is_same_v<typename function_traits<Function>::argType0, const stDataBaseCmd*>>
     bind(CALL_TYPE type, Function func)
     {
-        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::applyUsingCmd, std::move(func), std::placeholders::_1,
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::applyUsingCmd, std::move(func),
+                                      std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
 
+    // 成员函数 参数使用 stDataBaseCmd
     template <typename Function, typename Object>
-    std::enable_if_t<std::is_same_v<typename function_traits<Function>::template arg<0>::type, const stDataBaseCmd*>>
+    std::enable_if_t<std::is_same_v<typename function_traits<Function>::argType0, const stDataBaseCmd*>>
     bind(CALL_TYPE type, Function func, Object* object)
     {
-        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::template applyMemUsingCmd<Object>, std::move(func), object,
+        functionMap[type] = std::bind(RpcInvoker::Invoker<Function>::template applyMemUsingCmd<Object>, std::move(func),
+                                      object,
                                       std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
     }
@@ -120,6 +126,7 @@ public:
         std::string result;
         std::string cmd(reinterpret_cast<char*>(&msg->data[0]), msg->size);
         iter->second(cmd.c_str(), cmd.size(), result);
+        std::cout << "result:" << result << "\n" << std::endl;
     }
 
     template <typename... Args>
@@ -134,7 +141,7 @@ public:
         char* data = msg.release();
         std::string result;
         iter->second(data, size, result);
-        std::cout << result << std::endl;
+        std::cout << "result:" << result << "\n" << std::endl;
     }
 
 private:
