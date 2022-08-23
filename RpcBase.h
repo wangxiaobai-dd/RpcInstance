@@ -144,23 +144,9 @@ public:
         std::cout << "result:" << result << "\n" << std::endl;
     }
 
-    std::uint64_t generateRpcID()
-    {
-
-    }
-
-    virtual std::uint64_t getTimeStamp()
-    {
-        auto now= std::chrono::system_clock::now();
-        return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-    }
-
 private:
-    static std::uint64_t rpcid;
-
+    std::uint64_t rpcid = 0;
 };
-
-std::uint64_t RpcBase::rpcid = 0;
 
 
 #endif //TEMPLATEINSTANCE_RPCBASE_H
