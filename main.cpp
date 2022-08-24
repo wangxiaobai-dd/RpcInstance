@@ -74,4 +74,6 @@ int main()
     rpc.bind(RPC::CALL_SESSION_MEM_DATA, &TestMem::testMemData, &mem);
     send->type = RPC::CALL_SESSION_MEM_DATA;
     rpc.testLocalDataCall(send);
+
+    // 回调
 }

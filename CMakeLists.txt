@@ -18,6 +18,6 @@ HEADER_DIRECTORIES(header_list)
 
 include_directories(${header_list})
 
-add_executable(templateInstance main.cpp IdWorkder.h)
+add_executable(templateInstance main.cpp)
 
 

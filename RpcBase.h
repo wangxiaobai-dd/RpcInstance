@@ -9,8 +9,10 @@
 #include <iostream>
 #include "RpcData.h"
 #include "RpcInvoker.h"
+#include "RpcCallback.h"
+#include "IdWorer.h"
 
-const constexpr size_t DEFAULT_TIMEOUT = 5000;
+const constexpr size_t NONE_TIMEOUT = 0;
 const constexpr size_t MAX_MSG_LEN = 1024 * 64;
 
 template <class T>
@@ -95,7 +97,7 @@ public:
     }
 
 protected:
-    std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
+    std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap; // function<data, dataSize, result>
 
 /**************************************** 调用 ******************************************/
 
@@ -116,6 +118,7 @@ public:
         SEND_MSG(data, size)
     }
 
+    // 使用RpcMsg
     void testLocalDataCall(RpcMsg* msg)
     {
         if(!msg)
@@ -129,6 +132,7 @@ public:
         std::cout << "result:" << result << "\n" << std::endl;
     }
 
+    // 使用参数包
     template <typename... Args>
     void testLocalCall(CALL_TYPE type, Args&& ... args)
     {
@@ -144,8 +148,19 @@ public:
         std::cout << "result:" << result << "\n" << std::endl;
     }
 
-private:
+    // 使用回调函数
+    template <std::uint32_t TIMEOUT = NONE_TIMEOUT, typename... Args>
+    void testLocalCbCall(CALL_TYPE type, std::function<void(std::string_view)>& func, Args&&... args)
+    {
+        std::uint64_t rpcid = idWorker.genId();
+        auto cb = std::make_shared<RpcCB>(std::move(func), NONE_TIMEOUT);
+        callbackMap.emplace(rpcid, cb);
+    }
+
+protected:
     std::uint64_t rpcid = 0;
+    std::unordered_map<std::uint64_t, std::shared_ptr<RpcCB>> callbackMap;
+    IdWorker idWorker;
 };
 
 

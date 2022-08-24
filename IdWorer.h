@@ -2,19 +2,19 @@
 // Created by Meepo on 2022/8/22.
 //
 
-#ifndef TEMPLATEINSTANCE_IDWORKDER_H
-#define TEMPLATEINSTANCE_IDWORKDER_H
+#ifndef TEMPLATEINSTANCE_IDWORER_H
+#define TEMPLATEINSTANCE_IDWORER_H
 
 #include <chrono>
 #include <iostream>
 
-class SnowflakeIdWorker
+class IdWorker
 {
 public:
-    SnowflakeIdWorker() = delete;
+    IdWorker() = delete;
 
-    SnowflakeIdWorker(std::uint64_t _workerId, std::uint64_t _dataCenterId) : workerId(_workerId),
-                                                                              dataCenterId(_dataCenterId)
+    IdWorker(std::uint64_t _workerId, std::uint64_t _dataCenterId) : workerId(_workerId),
+                                                                     dataCenterId(_dataCenterId)
     {
         if(workerId > maxWorkerId)
             std::cout << "workderId overflow" << std::endl;
@@ -68,4 +68,4 @@ private:
 };
 
 
-#endif //TEMPLATEINSTANCE_IDWORKDER_H
+#endif //TEMPLATEINSTANCE_IDWORER_H

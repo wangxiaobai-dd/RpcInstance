@@ -32,8 +32,17 @@ namespace RPC
 
     struct RpcResultMsg
     {
+        unsigned int rpcid = 0;
+        unsigned char state = 0;    // 0:fail 1:success
+        unsigned int size = 0;
+        unsigned char data[0];
 
+        unsigned int getSize()
+        {
+            return sizeof(*this) + size * sizeof(data[0]);
+        }
     };
+
 
     struct stDataBaseCmd
     {
