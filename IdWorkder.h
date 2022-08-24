@@ -6,24 +6,43 @@
 #define TEMPLATEINSTANCE_IDWORKDER_H
 
 #include <chrono>
+#include <iostream>
 
 class SnowflakeIdWorker
 {
 public:
     SnowflakeIdWorker() = delete;
-    SnowflakeIdWorker()
+
+    SnowflakeIdWorker(std::uint64_t _workerId, std::uint64_t _dataCenterId) : workerId(_workerId),
+                                                                              dataCenterId(_dataCenterId)
+    {
+        if(workerId > maxWorkerId)
+            std::cout << "workderId overflow" << std::endl;
+        if(dataCenterId > maxDataCenterId)
+            std::cout << "dataCenterId overflow" << std::endl;
+    }
 
     /*
      * 0 41bit时间戳(69年) 5bit工作机器id 5bit数据中心 12bit序列号(4096)
      */
-    std::uint64_t genID()
+    std::uint64_t genId()
     {
         auto timestamp = genTimeStamp();
         if(lastTimeStamp == timestamp)
-
+        {
+            sequence = (sequence + 1) & sequenceMask;
+            if(sequence == 0)
+                timestamp += 1;
+        } else
+        {
+            sequence = 0;
+        }
+        lastTimeStamp = timestamp;
+        return ((timestamp - baseEpoch) << timestampLeftShift)
+               | (dataCenterId << dataCenterIdShift)
+               | (workerId << workerIdShift)
+               | sequence;
     }
-
-
 
 private:
     std::uint64_t genTimeStamp()
@@ -46,8 +65,6 @@ private:
     std::uint64_t dataCenterId = 0;             // 数据中心ID(0~31)
     std::uint64_t sequence = 0;                 // 毫秒内序列(0~4095)
     std::uint64_t lastTimeStamp = 0;            // 上次生成ID的时间截
-
-
 };
 
 
