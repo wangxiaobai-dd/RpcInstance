@@ -11,10 +11,19 @@
 class IdWorker
 {
 public:
-    IdWorker() = delete;
+    std::uint64_t genId(){}
 
-    IdWorker(std::uint64_t _workerId, std::uint64_t _dataCenterId) : workerId(_workerId),
-                                                                     dataCenterId(_dataCenterId)
+};
+
+class SnowflakeIdWorker : public IdWorker
+{
+public:
+    SnowflakeIdWorker() = delete;
+
+    virtual ~SnowflakeIdWorker(){}
+
+    SnowflakeIdWorker(std::uint64_t _workerId, std::uint64_t _dataCenterId) : workerId(_workerId),
+                                                                              dataCenterId(_dataCenterId)
     {
         if(workerId > maxWorkerId)
             std::cout << "workderId overflow" << std::endl;
@@ -44,8 +53,8 @@ public:
                | sequence;
     }
 
-private:
-    std::uint64_t genTimeStamp()
+protected:
+    virtual std::uint64_t genTimeStamp()
     {
         auto now = std::chrono::system_clock::now();
         return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();

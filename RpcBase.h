@@ -39,7 +39,15 @@ class RpcBase
 {
 public:
 
-    RpcBase(){}
+    RpcBase() : idWorker(std::make_shared<IdWorker>())
+    {
+        assert(idWorker);
+    }
+
+    RpcBase(std::shared_ptr<IdWorker> _idWorkder) : idWorker(_idWorkder)
+    {
+        assert(idWorker);
+    }
 
     virtual ~RpcBase(){}
 
@@ -112,7 +120,7 @@ public:
     template <typename... Args>
     void call(CALL_TYPE type, Args&& ... args)
     {
-        rpcid = idWorker.genId();
+        rpcid = idWorker->genId();
 
         msgpack_codec codec;
         auto msg = codec.pack_args(std::forward<Args>(args)...);
@@ -127,7 +135,7 @@ public:
         if(!cmd)
             return;
 
-        rpcid = idWorker.genId();
+        rpcid = idWorker->genId();
 
         CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
         send->rpcid = rpcid;
@@ -140,7 +148,7 @@ public:
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT, typename... Args>
     void call(CALL_TYPE type, std::function<void(std::string_view)>& func, Args&&... args)
     {
-        rpcid = idWorker.genId();
+        rpcid = idWorker->genId();
 
         auto cb = std::make_shared<RpcCB>(std::move(func), NONE_TIMEOUT);
         callbackMap.emplace(rpcid, cb);
@@ -156,7 +164,7 @@ public:
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT>
     void call(CALL_TYPE type, std::function<void(std::string_view)>& func, stDataBaseCmd* cmd, size_t cmdSize)
     {
-        rpcid = idWorker.genId();
+        rpcid = idWorker->genId();
 
         auto cb = std::make_shared<RpcCB>(std::move(func), NONE_TIMEOUT);
         callbackMap.emplace(rpcid, cb);
@@ -215,7 +223,7 @@ public:
 protected:
     std::uint64_t rpcid = 0;
     std::unordered_map<std::uint64_t, std::shared_ptr<RpcCB>> callbackMap;
-    IdWorker idWorker;
+    std::shared_ptr<IdWorker> idWorker;
 };
 
 
