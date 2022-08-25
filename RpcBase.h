@@ -112,7 +112,6 @@ public:
     template <typename... Args>
     void call(CALL_TYPE type, Args&& ... args)
     {
-        // rpcid++
         rpcid = idWorker.genId();
 
         msgpack_codec codec;
