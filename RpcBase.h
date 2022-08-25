@@ -209,13 +209,20 @@ public:
         std::cout << "result:" << result << "\n" << std::endl;
     }
 
-    // 回调
-    void testCallback(std::uint64_t rpcid, const char* data)
+    void dealResult(RpcResultMsg* retMsg)
     {
-        auto iter = callbackMap.find(rpcid);
+        if(!retMsg)
+            return;
+        if(!retMsg->state)
+        {
+            std::cout << "call fail" << std::endl;
+            return;
+        }
+        auto iter = callbackMap.find(retMsg->rpcid);
         if(iter == callbackMap.end())
             return;
-        iter->second->callback(data);
+        std::string data(reinterpret_cast<char*>(&retMsg->data[0]), retMsg->size);
+        iter->second->callback(data.c_str());
     }
 
 /**************************************** 测试结束 ******************************************/
@@ -224,6 +231,12 @@ protected:
     std::uint64_t rpcid = 0;
     std::unordered_map<std::uint64_t, std::shared_ptr<RpcCB>> callbackMap;
     std::shared_ptr<IdWorker> idWorker;
+public:
+    std::uint64_t getRpcId()
+    {
+        std::cout << rpcid << std::endl;
+        return rpcid;
+    }
 };
 
 

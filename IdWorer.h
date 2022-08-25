@@ -11,8 +11,14 @@
 class IdWorker
 {
 public:
-    std::uint64_t genId(){}
-
+    IdWorker(){}
+    ~IdWorker(){}
+    virtual std::uint64_t genId()
+    {
+        curId = (curId & std::numeric_limits<std::uint64_t>::max()) + 1;
+        return curId;
+    }
+    std::uint64_t curId = 0;
 };
 
 class SnowflakeIdWorker : public IdWorker
@@ -34,7 +40,7 @@ public:
     /*
      * 0 41bit时间戳(69年) 5bit工作机器id 5bit数据中心 12bit序列号(4096)
      */
-    std::uint64_t genId()
+    std::uint64_t genId() override
     {
         auto timestamp = genTimeStamp();
         if(lastTimeStamp == timestamp)

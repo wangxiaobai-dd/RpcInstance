@@ -76,4 +76,6 @@ int main()
     rpc.testLocalDataCall(send);
 
     // 回调
+
+    rpc.dealResult(rpc.getRpcId());
 }
