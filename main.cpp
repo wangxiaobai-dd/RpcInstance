@@ -38,6 +38,11 @@ struct TestMem
     }
 };
 
+void testCB(std::string_view data)
+{
+    std::cout << "testCB" << std::endl;
+}
+
 //todo exception
 
 int main()
@@ -76,6 +81,10 @@ int main()
     rpc.testLocalDataCall(send);
 
     // 回调
+    rpc.testRegisterCB(rpc.getRpcId(), testCB);
 
-    rpc.dealResult(rpc.getRpcId());
+    RpcResultMsg retMsg;
+    retMsg.state = 1;
+    retMsg.rpcid = rpc.getRpcId();
+    rpc.dealResult(&retMsg);
 }

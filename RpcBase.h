@@ -150,7 +150,7 @@ public:
     {
         rpcid = idWorker->genId();
 
-        auto cb = std::make_shared<RpcCB>(std::move(func), NONE_TIMEOUT);
+        auto cb = std::make_shared<RpcCB>(std::move(func), TIMEOUT);
         callbackMap.emplace(rpcid, cb);
 
         msgpack_codec codec;
@@ -166,7 +166,7 @@ public:
     {
         rpcid = idWorker->genId();
 
-        auto cb = std::make_shared<RpcCB>(std::move(func), NONE_TIMEOUT);
+        auto cb = std::make_shared<RpcCB>(std::move(func), TIMEOUT);
         callbackMap.emplace(rpcid, cb);
 
         CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
@@ -223,6 +223,12 @@ public:
             return;
         std::string data(reinterpret_cast<char*>(&retMsg->data[0]), retMsg->size);
         iter->second->callback(data.c_str());
+    }
+
+    void testRegisterCB(std::uint64_t cbId, std::function<void(std::string_view)> func)
+    {
+        auto cb = std::make_shared<RpcCB>(func, 0);
+        callbackMap.emplace(cbId, cb);
     }
 
 /**************************************** 测试结束 ******************************************/
