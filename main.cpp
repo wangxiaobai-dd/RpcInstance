@@ -40,7 +40,7 @@ struct TestMem
 
 void testCB(std::string_view data)
 {
-    std::cout << "testCB" << std::endl;
+    std::cout << "testCB" << ":" << data << std::endl;
 }
 
 //todo exception
@@ -83,8 +83,15 @@ int main()
     // 回调
     rpc.testRegisterCB(rpc.getRpcId(), testCB);
 
-    RpcResultMsg retMsg;
-    retMsg.state = 1;
-    retMsg.rpcid = rpc.getRpcId();
-    rpc.dealResult(&retMsg);
+    CREATE_MSG(RpcResultMsg, retMsg, MAX_MSG_LEN)
+    retMsg->state = 1;
+    retMsg->rpcid = rpc.getRpcId();
+    std::string resultData = "meepo";
+    std::memcpy(retMsg->data, resultData.data(), resultData.size());
+    retMsg->size = resultData.size();
+    rpc.dealResult(retMsg);
+
+    // call test
+    rpc.call(CALL_SESSION_CB, testCB);
+   // rpc.call(CALL_SESSION_CB, [](std::string_view data){});
 }

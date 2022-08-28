@@ -146,12 +146,12 @@ public:
     }
 
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT, typename... Args>
-    void call(CALL_TYPE type, std::function<void(std::string_view)>& func, Args&&... args)
+    void call(CALL_TYPE type, std::function<void(std::string_view)> cb, Args&&... args)
     {
         rpcid = idWorker->genId();
 
-        auto cb = std::make_shared<RpcCB>(std::move(func), TIMEOUT);
-        callbackMap.emplace(rpcid, cb);
+        auto callback = std::make_shared<RpcCB>(std::move(cb), TIMEOUT);
+        callbackMap.emplace(rpcid, callback);
 
         msgpack_codec codec;
         auto msg = codec.pack_args(std::forward<Args>(args)...);
@@ -162,11 +162,11 @@ public:
     }
 
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT>
-    void call(CALL_TYPE type, std::function<void(std::string_view)>& func, stDataBaseCmd* cmd, size_t cmdSize)
+    void call(CALL_TYPE type, std::function<void(std::string_view)> cb, stDataBaseCmd* cmd, size_t cmdSize)
     {
         rpcid = idWorker->genId();
 
-        auto cb = std::make_shared<RpcCB>(std::move(func), TIMEOUT);
+        auto callback = std::make_shared<RpcCB>(std::move(cb), TIMEOUT);
         callbackMap.emplace(rpcid, cb);
 
         CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)

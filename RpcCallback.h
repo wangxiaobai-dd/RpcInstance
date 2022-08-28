@@ -10,7 +10,7 @@
 
 class RpcCB : public std::enable_shared_from_this<RpcCB> {
 public:
-    RpcCB(std::function<void(std::string_view)>& _cb, size_t _timeout) : cb(std::move(_cb)), timeout(_timeout) {}
+    RpcCB(std::function<void(std::string_view)> _cb, size_t _timeout) : cb(std::move(_cb)), timeout(_timeout) {}
 
     void callback(std::string_view data)
     {

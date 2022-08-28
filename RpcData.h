@@ -14,6 +14,7 @@ namespace RPC
         CALL_SESSION_DATA = 3,
         CALL_SESSION_NO_PARAM = 4,
         CALL_SESSION_MEM_DATA = 5,
+        CALL_SESSION_CB = 6,
         CALL_MAX
     };
 
