@@ -92,6 +92,8 @@ int main()
     rpc.dealResult(retMsg);
 
     // call test
-    rpc.call(CALL_SESSION_CB, testCB);
-   // rpc.call(CALL_SESSION_CB, [](std::string_view data){});
+    rpc.callCB(RPC::CALL_SESSION_CB, testCB, 1);
+    rpc.callCB(RPC::CALL_SESSION_CB, [](std::string_view data){});
+
+    rpc.call(RPC::CALL_SESSION, 1, "meepocall");
 }

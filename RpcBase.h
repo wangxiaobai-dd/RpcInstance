@@ -122,12 +122,24 @@ public:
     {
         rpcid = idWorker->genId();
 
+        /*
         msgpack_codec codec;
         auto msg = codec.pack_args(std::forward<Args>(args)...);
         size_t size = msg.size();
         char* data = msg.release();
         CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
         SEND_MSG(data, size)
+         */
+
+        auto iter = functionMap.find(type);
+        if(iter == functionMap.end())
+            return;
+        msgpack_codec codec;
+        auto msg = codec.pack_args(std::forward<Args>(args)...);
+        size_t size = msg.size();
+        char* data = msg.release();
+        std::string result;
+        iter->second(data, size, result);
     }
 
     void call(CALL_TYPE type, stDataBaseCmd* cmd, size_t cmdSize)
@@ -146,7 +158,7 @@ public:
     }
 
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT, typename... Args>
-    void call(CALL_TYPE type, std::function<void(std::string_view)> cb, Args&&... args)
+    void callCB(CALL_TYPE type, std::function<void(std::string_view)> cb, Args&&... args)
     {
         rpcid = idWorker->genId();
 
@@ -161,21 +173,6 @@ public:
         SEND_MSG(data, size)
     }
 
-    template <std::uint32_t TIMEOUT = NONE_TIMEOUT>
-    void call(CALL_TYPE type, std::function<void(std::string_view)> cb, stDataBaseCmd* cmd, size_t cmdSize)
-    {
-        rpcid = idWorker->genId();
-
-        auto callback = std::make_shared<RpcCB>(std::move(cb), TIMEOUT);
-        callbackMap.emplace(rpcid, cb);
-
-        CREATE_MSG(RpcMsg, send, MAX_MSG_LEN)
-        send->rpcid = rpcid;
-        send->type = type;
-        std::memcpy(send->data, cmd, sizeof(*cmd));
-        send->size = sizeof(*cmd);
-        std::cout << "size call" << send->size << std::endl;
-    }
 
 /**************************************** 测试开始 ******************************************/
 
