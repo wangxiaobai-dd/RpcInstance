@@ -96,4 +96,8 @@ int main()
     rpc.callCB(RPC::CALL_SESSION_CB, [](std::string_view data){});
 
     rpc.call(RPC::CALL_SESSION, 1, "meepocall");
+
+    // snowflake
+    std::shared_ptr<SnowflakeIdWorker> sfIdWorker = std::make_shared<SnowflakeIdWorker>(1, 1);
+    std::cout << "genId:" << sfIdWorker->genId() << std::endl;
 }

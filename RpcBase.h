@@ -157,6 +157,7 @@ public:
         std::cout << "size call" << send->size << std::endl;
     }
 
+    // 回调
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT, typename... Args>
     void callCB(CALL_TYPE type, std::function<void(std::string_view)> cb, Args&&... args)
     {
