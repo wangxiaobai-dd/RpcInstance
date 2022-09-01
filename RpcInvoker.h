@@ -83,7 +83,7 @@ struct RpcInvoker
 
     template <typename Function, typename... Args>
     static std::enable_if_t<std::is_void_v<std::invoke_result_t<Function, Args...>>>
-    call(Function&& func, std::string& result, std::tuple<Args...>&& tup)
+    call(Function& func, std::string& result, std::tuple<Args...>&& tup)
     {
         callHelper(func, std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
         result = "invoke return void. OK";
@@ -91,16 +91,16 @@ struct RpcInvoker
 
     template <typename Function, typename... Args>
     static std::enable_if_t<!std::is_void_v<std::invoke_result_t<Function, Args...>>>
-    call(Function&& func, std::string& result, std::tuple<Args...>&& tup)
+    call(Function& func, std::string& result, std::tuple<Args...>&& tup)
     {
-        auto ret = callHelper(func, std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
+        callHelper(func, std::make_index_sequence<sizeof...(Args)>{}, std::move(tup));
         // do something with ret
         result = "invoke return non-void. OK";
     }
 
     template <typename Function, size_t... I, typename...Args>
     static std::invoke_result_t<Function, Args...>
-    callHelper(Function&& func, const std::index_sequence<I...>&, std::tuple<Args...>&& tup)
+    callHelper(Function& func, const std::index_sequence<I...>&, std::tuple<Args...>&& tup)
     {
         return std::invoke(func, std::forward<Args>(std::get<I>(tup))...);
         //return std::forward<Function>(func)(std::forward<Args>(std::get<I + 1>(tup))...);
