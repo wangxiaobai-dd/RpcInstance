@@ -1,5 +1,6 @@
 
 #include "RpcBase.h"
+#include "RpcPacker.h"
 
 int test(int a, std::string b)
 {
@@ -100,4 +101,8 @@ int main()
     // snowflake
     std::shared_ptr<SnowflakeIdWorker> sfIdWorker = std::make_shared<SnowflakeIdWorker>(1, 1);
     std::cout << "genId:" << sfIdWorker->genId() << std::endl;
+
+    // rpcpack
+    unsigned char buf[1000] = {0};
+    std::cout << "packArgs,size:" << RpcPacker::packArgs(buf, 1, 1, 1)  << std::endl;
 }
