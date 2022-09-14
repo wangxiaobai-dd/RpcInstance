@@ -102,7 +102,15 @@ int main()
     std::shared_ptr<SnowflakeIdWorker> sfIdWorker = std::make_shared<SnowflakeIdWorker>(1, 1);
     std::cout << "genId:" << sfIdWorker->genId() << std::endl;
 
-    // rpcpack
+    // rpcpacker
     unsigned char buf[1000] = {0};
     std::cout << "packArgs,size:" << RpcPacker::packArgs(buf, 1, 1, 1)  << std::endl;
+
+    std::tuple<int, std::string, bool> tup;
+    std::tuple<> emptyTup;
+
+    using argsType = typename function_traits<decltype(test)>::args_tuple;
+    argsType funcTup;
+    RpcPacker::unpackArgs(buf, funcTup);
+    printParam(funcTup);
 }

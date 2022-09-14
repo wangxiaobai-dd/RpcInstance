@@ -7,9 +7,14 @@
 
 #include <tuple>
 
+/*
+ *  This is a test frame for internal project.  Ignore it.
+ */
+
 struct RpcPacker
 {
-    // pack
+    /****************************** pack ******************************/
+
     template <typename... Args>
     static unsigned int packArgs(unsigned char* buffer, Args&& ...args)
     {
@@ -25,7 +30,7 @@ struct RpcPacker
     template <std::size_t... I, typename... Args>
     static unsigned int serializeArg(unsigned char* buffer, const std::index_sequence<I...>&, std::tuple<Args...> tupArgs)
     {
-        auto size = 0;
+        unsigned int size = 0;
         ((size += doSave(std::get<I>(tupArgs))), ...);
         return size;
     }
@@ -37,16 +42,35 @@ struct RpcPacker
         return sizeof(arg);
     }
 
-    // unpack
-    template <typename... Args> // t: tuple<int, string, int>
-    static void unpackArgs(unsigned char* data, std::tuple<Args...>& tupArgs)
-    {
-        
 
+    /****************************** unpack ******************************/
+    template <typename... Args> // t: tuple<int, string, int>
+    static void unpackArgs(unsigned char* data, std::tuple<Args...>& tupRet)
+    {
+        deserializeArg(data, typename std::index_sequence_for<Args...>{}, tupRet);
     }
 
-    
-    
+    template <std::size_t... I, typename... Args>
+    static void deserializeArg(unsigned char* data, const std::index_sequence<I...>&, std::tuple<Args...>& tupRet)
+    {
+        ((doLoad(data,std::get<I>(tupRet))), ...);
+    }
+
+    template <typename T>
+    static void doLoad(unsigned char* data, T& ret)
+    {
+        // do deserialize
+        if constexpr(std::is_same_v<T, int>)
+        {
+            std::cout << "typeid:int" << std::endl;
+            ret = 100;
+        }
+        else if constexpr(std::is_same_v<T, std::string>)
+        {
+            ret = "meepo";
+        }
+        std::cout << "doLoad:" << typeid(T).name() << std::endl;
+    }
 
 };
 
