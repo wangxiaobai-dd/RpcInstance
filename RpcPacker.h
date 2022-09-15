@@ -53,7 +53,9 @@ struct RpcPacker
     template <std::size_t... I, typename... Args>
     static void deserializeArg(unsigned char* data, const std::index_sequence<I...>&, std::tuple<Args...>& tupRet)
     {
-        ((doLoad(data,std::get<I>(tupRet))), ...);
+        unsigned int index = 0;
+        ((index += getIndex(), doLoad(data,std::get<I>(tupRet))), ...);
+        std::cout << "deserialize,index:" << index << std::endl;
     }
 
     template <typename T>
@@ -70,6 +72,11 @@ struct RpcPacker
             ret = "meepo";
         }
         std::cout << "doLoad:" << typeid(T).name() << std::endl;
+    }
+
+    static unsigned int getIndex()
+    {
+        return 1;
     }
 
 };
