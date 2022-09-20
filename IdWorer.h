@@ -21,6 +21,7 @@ public:
     std::uint64_t curId = 0;
 };
 
+// 雪花算法
 class SnowflakeIdWorker : public IdWorker
 {
 public:
