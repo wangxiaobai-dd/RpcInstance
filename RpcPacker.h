@@ -16,9 +16,9 @@ struct RpcPacker
     /****************************** pack ******************************/
 
     template <typename... Args>
-    static unsigned int packArgs(unsigned char* buffer, Args&& ...args)
+    static unsigned int packArgs(unsigned char* buffer, Args... args)
     {
-        return packTupleArgs(buffer, std::move(std::make_tuple(std::forward<Args>(args)...)));
+        return packTupleArgs(buffer, std::move(std::make_tuple(args...)));
     }
 
     template <typename... Args>
