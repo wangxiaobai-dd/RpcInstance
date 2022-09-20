@@ -2,8 +2,8 @@
 // Created by Meepo on 2022/8/22.
 //
 
-#ifndef TEMPLATEINSTANCE_IDWORER_H
-#define TEMPLATEINSTANCE_IDWORER_H
+#ifndef TEMPLATEINSTANCE_IDWORKER_H
+#define TEMPLATEINSTANCE_IDWORKER_H
 
 #include <chrono>
 #include <iostream>
@@ -84,4 +84,4 @@ protected:
 };
 
 
-#endif //TEMPLATEINSTANCE_IDWORER_H
+#endif //TEMPLATEINSTANCE_IDWORKER_H

@@ -10,7 +10,7 @@
 #include "RpcData.h"
 #include "RpcInvoker.h"
 #include "RpcCallback.h"
-#include "IdWorer.h"
+#include "IdWorker.h"
 
 const constexpr size_t NONE_TIMEOUT = 0;
 const constexpr size_t MAX_MSG_LEN = 1024 * 64;
@@ -118,7 +118,7 @@ protected:
 public:
 
     template <typename... Args>
-    void call(CALL_TYPE type, Args&& ... args)
+    void call(CALL_TYPE type, Args... args)
     {
         rpcid = idWorker->genId();
 
@@ -159,7 +159,7 @@ public:
 
     // 回调
     template <std::uint32_t TIMEOUT = NONE_TIMEOUT, typename... Args>
-    void callCb(CALL_TYPE type, std::function<void(std::string_view)> cb, Args&&... args)
+    void callCb(CALL_TYPE type, std::function<void(std::string_view)> cb, Args... args)
     {
         rpcid = idWorker->genId();
 
