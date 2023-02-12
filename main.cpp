@@ -52,7 +52,6 @@ int main()
 
     // 普通函数
     rpc.bind(RPC::CALL_SESSION, test);
-    // rpc.call(RPC::CALL_SESSION);
     rpc.testLocalCall(RPC::CALL_SESSION, 1, "meepo");
 
     // 成员函数

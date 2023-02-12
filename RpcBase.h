@@ -57,7 +57,8 @@ public:
     /**************************************** server 注册 ******************************************/
 public:
 
-    void route(RpcMsg* msg)
+    template <typename MSG, typename TCPConn>
+    void route(MSG* msg, TCPConn* conn)
     {
         if(!msg)
             return;
@@ -67,6 +68,9 @@ public:
         std::string result;
         std::string cmd(reinterpret_cast<char*>(&msg->data[0]), msg->size);
         iter->second(cmd.c_str(), cmd.size(), result);
+
+        // if(result.size())
+        //      sendRetMsg(conn, msg->rpcID, msg->type, result)
     }
 
     // 普通函数 参数未使用 stDataBaseCmd
@@ -111,7 +115,10 @@ public:
     }
 
 protected:
-    std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap; // function<data, dataSize, result>
+
+    // function<data, dataSize, result>
+    std::unordered_map<CALL_TYPE, std::function<void(const char*, size_t, std::string&)>> functionMap;
+
 
 /**************************************** client 调用 ******************************************/
 
